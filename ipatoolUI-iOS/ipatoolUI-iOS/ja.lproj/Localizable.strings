@@ -80,7 +80,7 @@
 "appIDOrBundleIDRequired" = "アプリIDまたはバンドルIDのいずれかを入力してください";
 "versionIDRequired" = "バージョンIDは必須です。アプリIDまたはバンドルIDのいずれかを入力してください";
 "enterBundleIDToPurchase" = "購入したいアプリのバンドルIDを入力してください";
-"appDescription" = "ipatool-api用のネイティブiOSクライアントです。Mac/PCで動作するipatool-apiサーバーに接続し、Apple IDでサインイン、アプリ検索、ライセンス購入、バージョン一覧、IPAのダウンロード・端末へのインストールを行います。";
+"appDescription" = "ipatool-api用のネイティブiOSクライアントです。App StoreからIPAをダウンロードしたり、USB接続した端末へインストールしたりできます。Mac/PCで動作するipatool-apiサーバーに接続し、Apple IDでサインイン、アプリ検索、ライセンス購入、バージョン一覧、IPAのダウンロード・端末へのインストールを行います。";
 "aboutFeatures" = "認証、検索、購入、バージョン一覧・メタデータ、IPAダウンロード、端末へのインストール（サーバー経由）、ファイル管理（共有・削除・共有後削除）、操作ログ。言語は「設定」→「[アプリ名]」→「言語」で変更できます。";
 "aboutLinkIpatoolAPI" = "ipatoolUI-iOS";
 "aboutSpecialThanks" = "スペシャルサンクス";

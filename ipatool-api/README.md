@@ -1,6 +1,6 @@
 # ipatool-api
 
-A dedicated HTTP API server for App Store interactions: authentication, search, purchase, version management, IPA download, and install to a USB-connected device. This is a server-only API (no CLI), providing REST endpoints for clients such as [ipatoolUI-iOS](../ipatoolUI-iOS/).
+A dedicated HTTP API server for App Store interactions: authentication, search, purchase, version management, **IPA download**, and **install to a USB-connected device**. Clients (e.g. [ipatoolUI-iOS](../ipatoolUI-iOS/)) can download IPAs or have the server install them to a connected iPhone/iPad (e.g. via `ideviceinstaller`). Server-only API (no CLI).
 
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 

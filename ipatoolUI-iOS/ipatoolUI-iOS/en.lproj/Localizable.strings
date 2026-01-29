@@ -80,7 +80,7 @@
 "appIDOrBundleIDRequired" = "Please enter either App ID or Bundle ID";
 "versionIDRequired" = "Version ID is required. Please enter either App ID or Bundle ID";
 "enterBundleIDToPurchase" = "Enter the Bundle ID of the app you want to purchase";
-"appDescription" = "Native iOS client for ipatool-api. Connects to a running ipatool-api server (Mac/PC) to sign in with Apple ID, search apps, purchase licenses, list versions, download IPAs, and install them to a connected device.";
+"appDescription" = "Native iOS client for ipatool-api. Download and install IPA files from the App Store: connect to a running ipatool-api server (Mac/PC) to sign in with Apple ID, search apps, purchase licenses, list versions, download IPAs to this device, or install them directly to a USB-connected device.";
 "aboutFeatures" = "Authentication, Search, Purchase, Version list & metadata, IPA Download, Install to device (via server), File management (share, delete, delete after share), Activity logs. Language: Settings → [App name] → Language.";
 "aboutLinkIpatoolAPI" = "ipatoolUI-iOS";
 "aboutSpecialThanks" = "Special Thanks";

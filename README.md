@@ -1,6 +1,6 @@
 # ipatoolUI
 
-A native iOS application for downloading IPA files from the App Store, along with its dedicated HTTP API server.
+A native iOS application for **downloading and installing** IPA files from the App Store. Connects to a dedicated HTTP API server (ipatool-api) that handles App Store operations and can install IPAs to a USB-connected device.
 
 > **Note**: This is a personal tool project. Use at your own discretion.
 

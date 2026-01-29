@@ -80,7 +80,7 @@
 "appIDOrBundleIDRequired" = "请输入应用ID或Bundle ID";
 "versionIDRequired" = "版本ID是必需的。请输入应用ID或Bundle ID";
 "enterBundleIDToPurchase" = "请输入要购买的应用的Bundle ID";
-"appDescription" = "ipatool-api 的 iOS 客户端。连接在 Mac/PC 上运行的 ipatool-api 服务器，使用 Apple ID 登录、搜索应用、购买许可、查看版本列表、下载 IPA 并安装到已连接设备。";
+"appDescription" = "ipatool-api 的 iOS 客户端。可从 App Store 下载 IPA，也可通过服务器安装到已连接的设备。连接在 Mac/PC 上运行的 ipatool-api 服务器，使用 Apple ID 登录、搜索应用、购买许可、查看版本列表、下载 IPA 或直接安装到 USB 连接的设备。";
 "aboutFeatures" = "认证、搜索、购买、版本列表与元数据、IPA 下载、安装到设备（经服务器）、文件管理（共享、删除、共享后删除）、操作日志。语言可在「设置」→「[应用名]」→「语言」中更改。";
 "aboutLinkIpatoolAPI" = "ipatoolUI-iOS";
 "aboutSpecialThanks" = "特别感谢";

@@ -1,6 +1,6 @@
 # ipatoolUI-iOS
 
-A native iOS client for downloading IPA files from the App Store. It connects to the **ipatool-api** HTTP server (Go) and provides a full-featured SwiftUI interface.
+A native iOS client for **downloading and installing** IPA files from the App Store. It connects to the **ipatool-api** HTTP server (Go) and provides a full-featured SwiftUI interface: download IPAs to the device or install them directly to a USB-connected iPhone/iPad via the server.
 
 > **Note**: This is a client-only app. It requires a running [ipatool-api](../ipatool-api/) server to function. See [Project Overview](#project-overview) and [Setup](#setup).
 
@@ -24,6 +24,8 @@ This app is part of the [ipatoolUI](../README.md) project:
 - **ipatoolUI-iOS** (this app): SwiftUI iOS app. All App Store operations go through ipatool-api.
 
 ## Features
+
+Download IPA files to this device or **install them directly to a USB-connected iPhone/iPad** via the ipatool-api server. All operations (auth, search, purchase, versions, download, install) go through the server.
 
 ### Core Functionality
 
