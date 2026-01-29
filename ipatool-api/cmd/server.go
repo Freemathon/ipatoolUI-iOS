@@ -37,6 +37,7 @@ func RunServer(port int, apiKey string) error {
 // If the specified port is in use, it automatically uses a random available port.
 func runServer(port int, apiKey string) error {
 	router := mux.NewRouter()
+	router.StrictSlash(true) // allow /api/v1/install and /api/v1/install/
 	api := router.PathPrefix("/api/v1").Subrouter()
 
 	if apiKey != "" {

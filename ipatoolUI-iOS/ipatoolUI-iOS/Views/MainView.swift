@@ -34,6 +34,9 @@ struct MainView: View {
             case .download:
                 DownloadView(viewModel: appState.downloadViewModel)
                     .navigationTitle(feature.title(using: appState.localizationManager.strings))
+            case .install:
+                InstallView(viewModel: appState.installViewModel)
+                    .navigationTitle(feature.title(using: appState.localizationManager.strings))
             case .metadata:
                 VersionMetadataView(viewModel: appState.versionMetadataViewModel)
                     .navigationTitle(feature.title(using: appState.localizationManager.strings))

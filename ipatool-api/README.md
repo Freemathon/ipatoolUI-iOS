@@ -1,8 +1,8 @@
-# ipatool-server
+# ipatool-api
 
-A dedicated HTTP API server for downloading IPA files from the App Store. This is a server-only version of ipatool, providing REST API endpoints for remote clients (iOS apps, web UIs, etc.) to interact with the App Store.
+A dedicated HTTP API server for App Store interactions: authentication, search, purchase, version management, IPA download, and install to a USB-connected device. This is a server-only API (no CLI), providing REST endpoints for clients such as [ipatoolUI-iOS](../ipatoolUI-iOS/).
 
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/majd/ipatool/blob/main/LICENSE)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ## Features
 
@@ -12,6 +12,7 @@ A dedicated HTTP API server for downloading IPA files from the App Store. This i
 - **License Purchase**: Purchase app licenses via API
 - **Version Management**: List and retrieve metadata for app versions
 - **IPA Download**: Download IPA files with streaming support for multi-GB files
+- **Install to Device**: Install IPA to a USB-connected iPhone/iPad from the server host (e.g. via `ideviceinstaller`)
 - **API Key Authentication**: Optional API key protection for endpoints
 - **Structured Logging**: JSON-formatted logs for production environments
 
@@ -20,6 +21,7 @@ A dedicated HTTP API server for downloading IPA files from the App Store. This i
 - Supported operating system (Windows, Linux, or macOS)
 - Go 1.19+ (for building from source)
 - Apple ID set up to use the App Store
+- For **Install to Device**: iPhone/iPad connected via USB to the machine running the server; `ideviceinstaller` (or override via `IPATOOL_INSTALL_CMD`) on the server host
 
 ## Security Features
 
@@ -41,14 +43,10 @@ This server includes comprehensive security measures:
 ### Building from Source
 
 ```bash
-# Clone the repository
-git clone <repository-url>
-cd ipatool-server
-
-# Build the server
+# From the ipatoolUI repo (or your clone)
+cd ipatool-api
 go build -o ipaserver .
-
-# The binary will be created as `ipaserver`
+# Binary: ipaserver
 ```
 
 ## Usage
@@ -69,21 +67,16 @@ go build -o ipaserver .
 ### Command Line Options
 
 - `-port`: HTTP server port (default: 8080)
-- `-api-key`: API key for authentication (optional, but recommended for production)
+- `-api-key`: API key for authentication (optional, recommended for production)
 
 ### Environment Variables
 
 - `IPATOOL_KEYCHAIN_PASSPHRASE`: Keychain passphrase for non-interactive keychain access (required if keychain is locked)
 - `CORS_ALLOWED_ORIGINS`: Comma-separated list of allowed CORS origins (default: all origins allowed for development)
   - Example: `CORS_ALLOWED_ORIGINS=http://localhost:3000,https://example.com`
-  - If not set, all origins are allowed (development mode)
 - `DEBUG`: Set to `true` to enable detailed error messages (default: `false`)
-  - In production, keep this `false` to prevent information leakage
 - `IPATOOL_PORT_FILE`: Optional file path to write the actual port number when using random port
-
-### Environment Variables
-
-- `IPATOOL_KEYCHAIN_PASSPHRASE`: Keychain passphrase for non-interactive keychain access (required if keychain is locked)
+- `IPATOOL_INSTALL_CMD`: Override the install command (default: `ideviceinstaller`). Server runs `<cmd> install <path>` to install the IPA on the USB-connected device.
 
 ## API Endpoints
 
@@ -240,9 +233,9 @@ Download an IPA file. Supports streaming for large files (multi-GB).
 ```json
 {
   "app_id": 123456789,              // Optional
-  "bundle_id": "com.example.app",  // Optional (takes precedence)
-  "external_version_id": "1.0.0",  // Optional (defaults to latest)
-  "auto_purchase": true            // Optional (auto-purchase license if needed)
+  "bundle_id": "com.example.app",   // Optional (takes precedence)
+  "external_version_id": "1.0.0",   // Optional (defaults to latest)
+  "auto_purchase": true             // Optional (auto-purchase license if needed)
 }
 ```
 
@@ -258,6 +251,40 @@ curl -X POST http://localhost:8080/api/v1/download \
 ```
 
 **Response:** Binary IPA file streamed directly.
+
+### Install to Device
+
+#### `POST /api/v1/install`
+Download the IPA (same as download) to a temporary file on the server, then install it on a USB-connected device. The server runs the install command (default: `ideviceinstaller install <path>`). Override with `IPATOOL_INSTALL_CMD` (e.g. `ideviceinstaller` so that args are `install` and the path).
+
+**Request Body:**
+```json
+{
+  "app_id": 123456789,              // Optional
+  "bundle_id": "com.example.app",   // Optional (takes precedence)
+  "external_version_id": "1.0.0",   // Optional (defaults to latest)
+  "auto_purchase": true,           // Optional (auto-purchase license if needed)
+  "device_udid": ""                 // Optional (first connected device if empty)
+}
+```
+
+**Example:**
+```bash
+curl -X POST http://localhost:8080/api/v1/install \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: your-secret-key" \
+  -d '{"bundle_id": "com.example.app", "auto_purchase": true}'
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Installed successfully"
+}
+```
+
+**Requirements:** iPhone/iPad connected via USB to the machine running ipatool-api; `ideviceinstaller` (or the command set in `IPATOOL_INSTALL_CMD`) available on that machine.
 
 ### Health Check
 
@@ -289,7 +316,8 @@ Get API information and available endpoints.
     "purchase": "POST /api/v1/purchase",
     "list_versions": "GET /api/v1/versions",
     "version_metadata": "GET /api/v1/metadata",
-    "download": "POST /api/v1/download"
+    "download": "POST /api/v1/download",
+    "install": "POST /api/v1/install"
   }
 }
 ```
@@ -309,7 +337,7 @@ The server includes CORS middleware to allow cross-origin requests from web appl
 
 ## Logging
 
-The server uses structured JSON logging, which is ideal for production environments and log aggregation systems. Logs include:
+The server uses structured JSON logging. Logs include:
 
 - Request ID for tracing
 - HTTP method and path
@@ -317,7 +345,7 @@ The server uses structured JSON logging, which is ideal for production environme
 - Request duration
 - Error details
 
-Only critical errors and important operations are logged by default to reduce noise.
+Only critical errors and important operations are logged by default.
 
 ## Server Configuration
 
@@ -332,7 +360,7 @@ The server is optimized for large file downloads:
 
 ### Security Recommendations
 
-1. **Use HTTPS**: Always use HTTPS in production. Consider using a reverse proxy (nginx, Caddy, etc.) with SSL/TLS termination.
+1. **Use HTTPS**: Always use HTTPS in production. Use a reverse proxy (nginx, Caddy, etc.) with SSL/TLS termination.
 
 2. **API Key Authentication**: Always enable API key authentication in production:
    ```bash
@@ -347,23 +375,23 @@ The server is optimized for large file downloads:
 
 4. **Firewall**: Configure firewall rules to restrict access to the server port.
 
-5. **Process Management**: Use a process manager like systemd, supervisor, or PM2 to manage the server process.
+5. **Process Management**: Use a process manager (e.g. systemd, supervisor) to manage the server process.
 
 ### Example systemd Service
 
-Create `/etc/systemd/system/ipatool-server.service`:
+Create `/etc/systemd/system/ipatool-api.service`:
 
 ```ini
 [Unit]
-Description=ipatool HTTP API Server
+Description=ipatool-api HTTP API Server
 After=network.target
 
 [Service]
 Type=simple
 User=ipatool
-WorkingDirectory=/opt/ipatool-server
+WorkingDirectory=/opt/ipatool-api
 Environment="IPATOOL_KEYCHAIN_PASSPHRASE=your-passphrase"
-ExecStart=/opt/ipatool-server/ipaserver -port 8080 -api-key "your-api-key"
+ExecStart=/opt/ipatool-api/ipaserver -port 8080 -api-key "your-api-key"
 Restart=always
 RestartSec=10
 
@@ -371,39 +399,31 @@ RestartSec=10
 WantedBy=multi-user.target
 ```
 
-Then enable and start the service:
+Then enable and start:
 
 ```bash
-sudo systemctl enable ipatool-server
-sudo systemctl start ipatool-server
+sudo systemctl enable ipatool-api
+sudo systemctl start ipatool-api
 ```
 
 ## Compiling
 
-Build the server using the Go toolchain:
-
 ```bash
 go build -o ipaserver .
-```
-
-Run unit tests:
-
-```bash
 go test -v ./...
 ```
 
 ## License
 
-This project is released under the [MIT license](https://github.com/majd/ipatool/blob/main/LICENSE).
+This project is released under the [MIT license](LICENSE).
 
 ## Differences from Original ipatool
 
-This server-only version:
+This API-only version:
 
-- **Removed CLI functionality**: All command-line commands have been removed
-- **Server-only mode**: Runs exclusively as an HTTP API server
-- **Simplified initialization**: No interactive prompts, uses environment variables for configuration
-- **JSON logging**: Always uses structured JSON logging format
-- **Optimized for production**: Designed for deployment in server environments
+- **No CLI**: All command-line usage has been removed; runs exclusively as an HTTP API server.
+- **Simplified initialization**: No interactive prompts; uses environment variables for configuration.
+- **JSON logging**: Structured JSON logging.
+- **Install endpoint**: Optional install-to-device flow (server runs `ideviceinstaller` or custom command).
 
-For CLI functionality, please use the original [ipatool](https://github.com/majd/ipatool) project.
+For the original CLI tool, see [ipatool](https://github.com/majd/ipatool).

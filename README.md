@@ -8,8 +8,8 @@ A native iOS application for downloading IPA files from the App Store, along wit
 
 This repository contains two main components:
 
-1. **`ipatool-api/`** - HTTP API server for App Store interactions (Go)
-2. **`ipatoolUI-iOS/`** - Native iOS client application (SwiftUI)
+1. **`ipatool-api/`** – HTTP API server for App Store interactions (Go)
+2. **`ipatoolUI-iOS/`** – Native iOS client application (SwiftUI)
 
 ### Component Relationship
 
@@ -52,7 +52,7 @@ See [`ipatoolUI-iOS/README.md`](ipatoolUI-iOS/README.md) for detailed iOS setup 
 
 ### ipatool-api
 
-A server-only HTTP API for App Store interactions. Provides REST endpoints for authentication, search, purchase, version management, and IPA downloads.
+A server-only HTTP API for App Store interactions. Provides REST endpoints for authentication, search, purchase, version management, IPA download, and install to a USB-connected device.
 
 - **Language**: Go
 - **Requirements**: Go 1.19+ (1.23 recommended), Apple ID
@@ -61,6 +61,7 @@ A server-only HTTP API for App Store interactions. Provides REST endpoints for a
 **Key Features**:
 - REST API for remote clients
 - Streaming downloads for multi-GB files
+- Install IPA to device (via `ideviceinstaller` on server host)
 - Optional API key authentication
 - Structured JSON logging
 - Automatic port selection
@@ -74,9 +75,11 @@ Native iOS application built with SwiftUI. Connects to `ipatool-api` server to p
 - **Documentation**: [`ipatoolUI-iOS/README.md`](ipatoolUI-iOS/README.md)
 
 **Key Features**:
-- Multi-language support (Japanese, English, Chinese)
+- Authentication, Search, Purchase, Version list & metadata, IPA Download, Install to device (via server)
+- File management: share, delete, delete after share, delete all downloaded IPAs
+- Multi-language: Japanese, English, Simplified Chinese (Settings → [App] → Language)
 - Currency formatting with locale selection
-- Long-press actions for copying bundle IDs and versions
+- Long-press to copy bundle ID or version
 - Optimized downloads for large files
 - Modern iOS 17+ UI design
 
@@ -92,6 +95,7 @@ The iOS app (`ipatoolUI-iOS`) communicates with the API server (`ipatool-api`) v
 - **Versions**: `/api/v1/versions`
 - **Version Metadata**: `/api/v1/metadata`
 - **Download**: `/api/v1/download`
+- **Install**: `/api/v1/install` (install IPA to USB-connected device from server host)
 
 The server handles all App Store interactions and provides a clean API interface for clients.
 

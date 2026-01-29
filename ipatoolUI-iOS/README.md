@@ -20,8 +20,8 @@ This app is part of the [ipatoolUI](../README.md) project:
                                                 └──────────────┘
 ```
 
-- **ipatool-api** ([../ipatool-api/](../ipatool-api/)): Go HTTP API server. Handles Apple ID auth, search, purchase, versions, and IPA download.
-- **ipatoolUI-iOS** (this repo): SwiftUI iOS app. All App Store operations go through ipatool-api.
+- **ipatool-api** ([../ipatool-api/](../ipatool-api/)): Go HTTP API server. Handles Apple ID auth, search, purchase, versions, IPA download, and install to a USB-connected device.
+- **ipatoolUI-iOS** (this app): SwiftUI iOS app. All App Store operations go through ipatool-api.
 
 ## Features
 
@@ -35,16 +35,18 @@ This app is part of the [ipatoolUI](../README.md) project:
 | **Version List** | List all available versions for an app; copy version or download from list |
 | **Version Metadata** | Fetch metadata for a specific version |
 | **IPA Download** | Download IPA with progress; supports multi-GB files (streaming to disk) |
-| **File Management** | Share or delete downloaded IPAs from app documents |
+| **Install to Device** | Install downloaded IPA to a USB-connected device via ipatool-api (server runs `ideviceinstaller` etc.) |
+| **File Management** | List downloaded IPAs; share, delete individual, or delete all; optional “delete after share” |
 | **Activity Logs** | View operation logs in-app |
 
 ### User Experience
 
-- **Localization**: Japanese, English, Simplified Chinese (with optional auto-detect)
-- **Currency**: Locale-based price formatting with manual country override
-- **Long-press**: Copy bundle ID or version string from lists
-- **Direct download**: Start download from the Versions list for a specific version
-- **Modern UI**: SwiftUI, tab-based navigation, iOS 17+ design
+- **Localization**: Japanese, English, Simplified Chinese. Language is changed in **Settings → [App name] → Language** (system per-app language).
+- **Currency**: Locale-based price formatting with manual country override.
+- **Long-press**: Copy bundle ID or version string from lists.
+- **Direct download**: Start download from the Versions list for a specific version.
+- **About**: App icon, author (Freemathon), overview, links (ipatoolUI-iOS), Special Thanks (ipatool, ipatoolUI macOS).
+- **Modern UI**: SwiftUI, tab-based navigation, iOS 17+ design.
 
 ## Requirements
 
@@ -115,7 +117,12 @@ On some systems you may need `IPATOOL_KEYCHAIN_PASSPHRASE` for non-interactive k
 
 1. **Download** tab → app ID or bundle ID, optional version ID.
 2. Turn **Auto Purchase** on to buy the license if needed.
-3. Tap **Download**; progress is shown. Use **Share File** or **Delete File** when done.
+3. Tap **Download**; progress is shown. Use **Share File**, **Delete File**, or manage the list of downloaded IPAs (delete one or all). Option **Delete IPA after share** in Settings removes the file after sharing.
+
+### Install to Device
+
+1. **Install** tab → select a downloaded IPA or provide app/version to install.
+2. iPhone must be connected via USB to the machine running ipatool-api. The server uses `ideviceinstaller` (or override via `IPATOOL_INSTALL_CMD`) to install the IPA.
 
 ### Version Metadata
 
@@ -125,28 +132,34 @@ On some systems you may need `IPATOOL_KEYCHAIN_PASSPHRASE` for non-interactive k
 ### Settings
 
 - **API Base URL** / **API Key**: Server connection (API key stored in Keychain).
-- **Language**: Japanese, English, Chinese, or Auto.
+- **Delete IPA after share**: Remove the last downloaded file after sharing.
 - **Currency locale**: For price display.
-- **About**: App info.
+- **About**: App info, author (Freemathon), links, Special Thanks.
+
+**Language**: Change in **Settings → [App name] → Language** (system per-app language). Restart the app if needed after changing.
 
 ## Project Structure
 
 ```
 ipatoolUI-iOS/
 ├── ipatoolUI-iOS/                 # Source
-│   ├── ipatoolUI_iOSApp.swift      # App entry point
+│   ├── ipatoolUI_iOSApp.swift     # App entry point
+│   ├── Assets.xcassets/           # App icon, AboutAppIcon, AccentColor
+│   ├── en.lproj/
+│   ├── ja.lproj/
+│   ├── zh-Hans.lproj/             # Localizable.strings
 │   ├── Services/
 │   │   ├── APIService.swift        # REST client for ipatool-api
-│   │   ├── AppLookupService.swift  # iTunes lookup (e.g. app name, size)
-│   │   ├── FileManagerService.swift# Documents: save, list, delete, share IPA
-│   │   ├── KeychainService.swift   # Secure storage for API key
+│   │   ├── AppLookupService.swift # iTunes lookup (e.g. app name, size)
+│   │   ├── FileManagerService.swift # Documents: save, list, delete, share IPA
+│   │   ├── KeychainService.swift  # Secure storage for API key
 │   │   └── PurchaseStatusChecker.swift
 │   ├── Models/
-│   │   ├── AppState.swift          # Global state, Feature, Preferences, PreferencesStore
+│   │   ├── AppState.swift         # Global state, Feature, Preferences
 │   │   ├── APIResponseModels.swift # DTOs for API responses
-│   │   ├── CountryCode.swift       # Country list and currency mapping
+│   │   ├── CountryCode.swift      # Country list and currency mapping
 │   │   ├── CurrencyFormatter.swift # Price formatting
-│   │   └── Localization.swift      # Localized strings (ja/en/zh-Hans)
+│   │   └── Localization.swift     # NSLocalizedString keys (ja/en/zh-Hans)
 │   ├── ViewModels/
 │   │   ├── BaseViewModel.swift
 │   │   ├── AuthViewModel.swift
@@ -154,14 +167,16 @@ ipatoolUI-iOS/
 │   │   ├── PurchaseViewModel.swift
 │   │   ├── ListVersionsViewModel.swift
 │   │   ├── DownloadViewModel.swift
+│   │   ├── InstallViewModel.swift
 │   │   └── VersionMetadataViewModel.swift
 │   ├── Views/
-│   │   ├── MainView.swift          # TabView and feature routing
+│   │   ├── MainView.swift         # TabView and feature routing
 │   │   ├── AuthView.swift
 │   │   ├── SearchView.swift
 │   │   ├── PurchaseView.swift
 │   │   ├── ListVersionsView.swift
 │   │   ├── DownloadView.swift
+│   │   ├── InstallView.swift
 │   │   ├── VersionMetadataView.swift
 │   │   ├── LogsView.swift
 │   │   ├── SettingsView.swift
@@ -171,8 +186,8 @@ ipatoolUI-iOS/
 │       ├── DateFormatterHelper.swift
 │       ├── FilenameHelper.swift
 │       └── ValidationHelpers.swift
-├── Info.plist                      # ATS, local network usage, Bonjour
-└── README.md                       # This file
+├── Info.plist                     # ATS, local network, Bonjour, CFBundleLocalizations
+└── README.md                      # This file
 ```
 
 ## Technical Details
@@ -208,7 +223,8 @@ Tuned for large IPAs (multi-GB):
 | 403 | Server uses API key → set **API Key** in Settings. |
 | Slow / failed download | Check server logs; confirm app is downloadable and (if needed) purchased. |
 | Auth / 2FA | Correct Apple ID/password; enter 2FA code when prompted. |
-| Language not updating | Restart app after changing language in Settings. |
+| Language not updating | Restart app after changing language in **Settings → [App name] → Language**. |
+| Install fails | iPhone connected via USB to the machine running ipatool-api; `ideviceinstaller` (or `IPATOOL_INSTALL_CMD`) available on server. |
 
 ## Development
 

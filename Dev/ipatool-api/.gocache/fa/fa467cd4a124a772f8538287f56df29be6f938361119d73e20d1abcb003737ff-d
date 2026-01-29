@@ -1,5 +1,0 @@
-./clock.go
-./exp.go
-./regular.go
-./retry.go
-./strategy.go

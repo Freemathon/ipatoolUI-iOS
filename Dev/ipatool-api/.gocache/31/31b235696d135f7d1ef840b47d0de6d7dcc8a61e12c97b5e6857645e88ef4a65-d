@@ -1,5 +1,0 @@
-./keychain.go
-./keychain_get.go
-./keychain_remove.go
-./keychain_set.go
-./keyring.go

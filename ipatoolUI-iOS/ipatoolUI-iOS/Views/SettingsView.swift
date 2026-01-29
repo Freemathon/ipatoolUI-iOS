@@ -20,15 +20,6 @@ struct SettingsView: View {
         return url.host != nil
     }
     
-    private var languageBinding: Binding<AppLanguage?> {
-        Binding(
-            get: { appState.preferences.language },
-            set: { newValue in
-                appState.preferences.language = newValue
-            }
-        )
-    }
-    
     private var localeBinding: Binding<String?> {
         Binding(
             get: { appState.preferences.selectedCountryCode },
@@ -67,17 +58,6 @@ struct SettingsView: View {
                         .foregroundColor(.red)
                         .font(.caption)
                 }
-            }
-            
-            Section {
-                Picker(appState.localizationManager.strings.languageLabel, selection: languageBinding) {
-                    Text(appState.localizationManager.strings.autoSystem).tag(AppLanguage?.none)
-                    ForEach(AppLanguage.allCases) { lang in
-                        Text(lang.displayName).tag(AppLanguage?.some(lang))
-                    }
-                }
-            } header: {
-                Text(appState.localizationManager.strings.languageLabel)
             }
             
             Section {

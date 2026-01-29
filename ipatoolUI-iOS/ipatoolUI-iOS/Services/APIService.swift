@@ -123,6 +123,34 @@ final class APIService {
         return try await performRequest(request, responseType: VersionMetadataResponse.self)
     }
     
+    // MARK: - Install
+    
+    func install(
+        bundleID: String? = nil,
+        appID: Int64? = nil,
+        externalVersionID: String? = nil,
+        autoPurchase: Bool = false,
+        deviceUDID: String? = nil
+    ) async throws -> InstallResponse {
+        let url = try buildURL(path: "/api/v1/install")
+        var body: [String: Any] = [:]
+        if let bundleID = bundleID {
+            body["bundle_id"] = bundleID
+        }
+        if let appID = appID {
+            body["app_id"] = appID
+        }
+        if let externalVersionID = externalVersionID {
+            body["external_version_id"] = externalVersionID
+        }
+        body["auto_purchase"] = autoPurchase
+        if let deviceUDID = deviceUDID, !deviceUDID.isEmpty {
+            body["device_udid"] = deviceUDID
+        }
+        let request = try buildRequest(url: url, method: "POST", body: body)
+        return try await performRequest(request, responseType: InstallResponse.self)
+    }
+    
     // MARK: - Download
     
     func download(

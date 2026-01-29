@@ -7,6 +7,7 @@ enum Feature: String, CaseIterable, Identifiable {
     case purchase
     case listVersions
     case download
+    case install
     case metadata
     case logs
     case settings
@@ -21,6 +22,7 @@ enum Feature: String, CaseIterable, Identifiable {
         case .purchase: return strings.purchase
         case .listVersions: return strings.versions
         case .download: return strings.download
+        case .install: return strings.install
         case .metadata: return strings.versionMetadata
         case .logs: return strings.logs
         case .settings: return strings.settings
@@ -35,6 +37,7 @@ enum Feature: String, CaseIterable, Identifiable {
         case .purchase: return "cart"
         case .listVersions: return "list.number"
         case .download: return "arrow.down.circle"
+        case .install: return "arrow.down.to.line.circle"
         case .metadata: return "info.circle"
         case .logs: return "note.text"
         case .settings: return "gear"
@@ -46,14 +49,12 @@ enum Feature: String, CaseIterable, Identifiable {
 struct Preferences: Codable, Equatable {
     var apiBaseURL: String
     var apiKey: String
-    var language: AppLanguage? // User-selected language (nil means auto-detect)
     var selectedCountryCode: String? // User-selected locale for currency display (nil means auto-detect)
     var deleteIPAAfterShare: Bool? // Delete downloaded IPA after sharing (nil = false for backward compatibility)
     
     static let `default` = Preferences(
         apiBaseURL: "http://localhost:8080",
         apiKey: "",
-        language: nil,
         selectedCountryCode: nil,
         deleteIPAAfterShare: false
     )
@@ -80,6 +81,7 @@ final class AppState: ObservableObject {
     let authViewModel = AuthViewModel()
     let searchViewModel = SearchViewModel()
     let downloadViewModel = DownloadViewModel()
+    let installViewModel = InstallViewModel()
     let listVersionsViewModel = ListVersionsViewModel()
     let versionMetadataViewModel = VersionMetadataViewModel()
     let purchaseViewModel = PurchaseViewModel()
@@ -181,19 +183,7 @@ final class AppState: ObservableObject {
     }
     
     private func updateLanguage() {
-        if let language = preferences.language {
-            localizationManager.setLanguage(language)
-        } else {
-            // Auto-detect from system
-            let systemLanguage = Locale.preferredLanguages.first ?? "en"
-            if systemLanguage.hasPrefix("ja") {
-                localizationManager.setLanguage(.japanese)
-            } else if systemLanguage.hasPrefix("zh") {
-                localizationManager.setLanguage(.chinese)
-            } else {
-                localizationManager.setLanguage(.english)
-            }
-        }
+        // Language is now from Settings → [App] → Language (or system). No in-app override.
     }
 }
 

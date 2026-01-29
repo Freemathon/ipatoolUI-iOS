@@ -81,6 +81,13 @@ struct ListVersionsResponse: Codable {
     }
 }
 
+// MARK: - Install Response
+
+struct InstallResponse: Codable {
+    let success: Bool
+    let message: String?
+}
+
 // MARK: - Metadata Response
 
 struct VersionMetadataResponse: Codable {

@@ -101,7 +101,7 @@ struct VersionMetadataView: View {
     }
     
     private func formatDate(_ dateString: String) -> String {
-        DateFormatterHelper.formatDate(dateString, locale: appState.localizationManager.currentLanguage.locale)
+        DateFormatterHelper.formatDate(dateString, locale: appState.localizationManager.currentBundleLanguage.locale)
     }
 }
 
